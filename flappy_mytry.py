@@ -5,6 +5,7 @@ import numpy as np
 
 import pygame
 from pygame.locals import *
+import json
 
 
 i=0;
@@ -90,12 +91,17 @@ class NeuralNetwork:
         # layers = [2,2,1]
         # range of weight values (-1,1)
         # input and hidden layers - random((2+1, 2+1)) : 3 x 3
-        for i in range(1, len(layers) - 1):
-            r = 2*np.random.random((layers[i-1] + 1, layers[i] + 1)) -1
-            self.weights.append(r)
-        # output layer - random((2+1, 1)) : 3 x 1
-        r = 2*np.random.random( (layers[i] + 1, layers[i+1])) - 1
-        self.weights.append(r)
+        # for i in range(1, len(layers) - 1):
+        #     r = 2*np.random.random((layers[i-1] + 1, layers[i] + 1)) -1
+        #     self.weights.append(r)
+        # # output layer - random((2+1, 1)) : 3 x 1
+        # r = 2*np.random.random((layers[i] + 1, layers[i+1])) - 1
+        with open('weights.json', 'r') as datafile:
+            data_load = json.load(datafile)
+        theta1 = np.array(data_load['theta1'])
+        theta2 = np.array(data_load['theta2'])
+        self.weights.append(theta1)
+        self.weights.append(theta2)
 
     def fit(self, X, y, learning_rate=0.4, epochs=3):
         # Add column of ones to X
@@ -448,28 +454,35 @@ def mainGame(movementInfo):
         #             # playerVelY = playerFlapAcc
         #             # playerFlapped = True
         #             # SOUNDS['wing'].play()
-        if(len(lowerPipes)==3):
+        # if(len(lowerPipes)==3):
 
-            a = [lowerPipes[1]['x']+4-playerx,(lowerPipes[1]['y'])-playery]
+        #     a = [lowerPipes[1]['x']+4-playerx,(lowerPipes[1]['y'])-playery]
 
-            X = np.array([[lowerPipes[1]['x']+4-playerx,lowerPipes[1]['y']-20-playery]])
+        #     X = np.array([[lowerPipes[1]['x']+4-playerx,lowerPipes[1]['y']-20-playery]])
 
-        elif (len(lowerPipes)==2 and lowerPipes[0]['x']<50):
-            a = [lowerPipes[1]['x']-playerx,lowerPipes[1]['y']-playery]
-            X = np.array([[lowerPipes[1]['x']+4-playerx,lowerPipes[1]['y']-20-playery]])    
+        # elif (len(lowerPipes)==2 and lowerPipes[0]['x']<50):
+        #     a = [lowerPipes[1]['x']-playerx,lowerPipes[1]['y']-playery]
+        #     X = np.array([[lowerPipes[1]['x']+4-playerx,lowerPipes[1]['y']-20-playery]])    
+        # else:
+        #     a = [lowerPipes[0]['x']-playerx,lowerPipes[0]['y']-playery]
+        #     X = np.array([[lowerPipes[0]['x']+4-playerx,lowerPipes[0]['y']-20-playery]])
+
+        if(lowerPipes[0]['x'] < 57):
+            x_data = lowerPipes[1]['x']-playerx;
+            y_data = lowerPipes[1]['y']-playery;                    
         else:
-            a = [lowerPipes[0]['x']-playerx,lowerPipes[0]['y']-playery]
-            X = np.array([[lowerPipes[0]['x']+4-playerx,lowerPipes[0]['y']-20-playery]])
-
+            x_data = lowerPipes[0]['x']-playerx;
+            y_data = lowerPipes[0]['y']-playery;
+        X = np.array([[x_data, y_data]])
         #crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
                                #upperPipes, lowerPipes)
-        print(lowerPipes)                       
-        print(playerx,playery)
+        # print(lowerPipes)                       
+        # print(playerx,playery)
         
 
         for e in X:
             output = net.predict(e)  
-        print(output)   
+        # print(output)   
         if(output>0.5):
             playerVelY = playerFlapAcc
             playerFlapped = True
@@ -477,21 +490,21 @@ def mainGame(movementInfo):
 
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
                                upperPipes, lowerPipes)
-        print(crashTest[0])
+        # print(crashTest[0])
         if(playery<0 or crashTest[0]==True):
-            print('Hello')
+            # print('Hello')
             if(output>0.5):    
                 y = np.array([0])
             else:
                 y = np.array([1])    
-            print("Fitting")
-            net.fit(X,y)
+            # print("Fitting")
+            # net.fit(X,y)
         else:
             if(output>0.5):    
                 y = np.array([1])
             else:
                 y = np.array([0]) 
-                
+            # net.fit(X,y)  
         # check for crash here
         # if(len(lowerPipes)==3):
         #     a = [lowerPipes[1]['x']-playerx,lowerPipes[1]['y']-playery]
@@ -506,6 +519,7 @@ def mainGame(movementInfo):
         
 
         if crashTest[0] or playery<0:
+
             print ("----------------------------------------------------------------")
             return {
                 'y': playery,
@@ -525,7 +539,7 @@ def mainGame(movementInfo):
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
                 max_score = max(max_score,score)
-                print(max_score)
+                # print(max_score)
                 #SOUNDS['point'].play()
 
         # playerIndex basex change
@@ -610,6 +624,7 @@ def showGameOverScreen(crashInfo):
     if not crashInfo['groundCrash']:
         print('hell0')
 
+
     while True:
         # for event in pygame.event.get():
         #     if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
@@ -617,6 +632,13 @@ def showGameOverScreen(crashInfo):
         #         sys.exit()
         #     if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
         #         if playery + playerHeight >= BASEY - 1:
+        theta1 = net.weights[0].tolist()
+        theta2 = net.weights[1].tolist()
+        dict_obj = {"theta1" : theta1, "theta2" : theta2}
+        with open('weights.json', 'w') as outfile:
+            json.dump(dict_obj, outfile)
+
+        print(net.weights)
         return
 
         # player y shift
