@@ -91,18 +91,18 @@ class NeuralNetwork:
     #    layers = [2,2,1]
     #    range of weight values (-1,1)
     #    input and hidden layers - random((2+1, 2+1)) : 3 x 3
-        for i in range(1, len(layers) - 1):
-            r = 2*np.random.random((layers[i-1] + 1, layers[i] + 1)) -1
-            self.weights.append(r)
-        # output layer - random((2+1, 1)) : 3 x 1
-        r = 2*np.random.random( (layers[i] + 1, layers[i+1])) - 1
-        self.weights.append(r)
-        # with open('weights.json', 'r') as datafile:
-        #     data_load = json.load(datafile)
-        # theta1 = np.array(data_load['theta1'])
-        # theta2 = np.array(data_load['theta2'])
-        # self.weights.append(theta1)
-        # self.weights.append(theta2)
+        # for i in range(1, len(layers) - 1):
+        #     r = 2*np.random.random((layers[i-1] + 1, layers[i] + 1)) -1
+        #     self.weights.append(r)
+        # # output layer - random((2+1, 1)) : 3 x 1
+        # r = 2*np.random.random( (layers[i] + 1, layers[i+1])) - 1
+        # self.weights.append(r)
+        with open('weights.json', 'r') as datafile:
+            data_load = json.load(datafile)
+        theta1 = np.array(data_load['theta1'])
+        theta2 = np.array(data_load['theta2'])
+        self.weights.append(theta1)
+        self.weights.append(theta2)
 
     def fit(self, X, y, learning_rate=0.4, epochs=1):
         # Add column of ones to X
@@ -484,7 +484,7 @@ def mainGame(movementInfo):
         if(output>0.5):
             playerVelY = playerFlapAcc
             playerFlapped = True
-            #SOUNDS['wing'].play()
+            SOUNDS['wing'].play()
 
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
                                upperPipes, lowerPipes)
@@ -630,13 +630,13 @@ def showGameOverScreen(crashInfo):
         #         sys.exit()
         #     if event.type == KEYDOWN and (event.key == K_SPACE or event.key == K_UP):
         #         if playery + playerHeight >= BASEY - 1:
-        theta1 = net.weights[0].tolist()
-        theta2 = net.weights[1].tolist()
-        dict_obj = {"theta1" : theta1, "theta2" : theta2}
-        with open('weights.json', 'w') as outfile:
-            json.dump(dict_obj, outfile)
+        # theta1 = net.weights[0].tolist()
+        # theta2 = net.weights[1].tolist()
+        # dict_obj = {"theta1" : theta1, "theta2" : theta2}
+        # with open('weights.json', 'w') as outfile:
+        #     json.dump(dict_obj, outfile)
 
-        print(net.weights)
+        # print(net.weights)
         return
 
         # player y shift
