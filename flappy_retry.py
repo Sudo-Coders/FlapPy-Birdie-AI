@@ -7,12 +7,12 @@ import pygame
 from pygame.locals import *
 from sklearn.externals import joblib
 
-data = pd.read_csv("Data1.csv");
+data = pd.read_csv("codedoper2.csv");
 length_data = data.shape[0];
 
 ######################### Classifier ##############################
 
-clf = joblib.load('classifier.pkl')
+clf = joblib.load('saved_classifiers/svm.pkl')
 
 
 ############################ END ##################################
@@ -23,7 +23,7 @@ FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
-PIPEGAPSIZE  = 200 # gap between upper and lower part of pipe
+PIPEGAPSIZE  = 130 # gap between upper and lower part of pipe
 BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
@@ -301,7 +301,7 @@ def mainGame(movementInfo):
         crashTest = checkCrash({'x': playerx, 'y': playery, 'index': playerIndex},
                                upperPipes, lowerPipes)
         if crashTest[0]:
-            # data.to_csv("Data1.csv", index=False);
+            # data.to_csv("codedoper2.csv", index=False);
             return {
                 'y': playery,
                 'groundCrash': crashTest[1],

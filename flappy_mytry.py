@@ -9,11 +9,11 @@ import json
 
 
 i=0;
-FPS = 30
+FPS = 40
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
-PIPEGAPSIZE  = 130 # gap between upper and lower part of pipe
+PIPEGAPSIZE  = 170 # gap between upper and lower part of pipe
 BASEY        = SCREENHEIGHT * 0.79
 eta = 0.7
 # image, sound and hitmask  dicts
@@ -88,22 +88,23 @@ class NeuralNetwork:
 
         # Set weights
         self.weights = []
-        # layers = [2,2,1]
-        # range of weight values (-1,1)
-        # input and hidden layers - random((2+1, 2+1)) : 3 x 3
-        # for i in range(1, len(layers) - 1):
-        #     r = 2*np.random.random((layers[i-1] + 1, layers[i] + 1)) -1
-        #     self.weights.append(r)
-        # # output layer - random((2+1, 1)) : 3 x 1
-        # r = 2*np.random.random((layers[i] + 1, layers[i+1])) - 1
-        with open('weights.json', 'r') as datafile:
-            data_load = json.load(datafile)
-        theta1 = np.array(data_load['theta1'])
-        theta2 = np.array(data_load['theta2'])
-        self.weights.append(theta1)
-        self.weights.append(theta2)
+    #    layers = [2,2,1]
+    #    range of weight values (-1,1)
+    #    input and hidden layers - random((2+1, 2+1)) : 3 x 3
+        for i in range(1, len(layers) - 1):
+            r = 2*np.random.random((layers[i-1] + 1, layers[i] + 1)) -1
+            self.weights.append(r)
+        # output layer - random((2+1, 1)) : 3 x 1
+        r = 2*np.random.random( (layers[i] + 1, layers[i+1])) - 1
+        self.weights.append(r)
+        # with open('weights.json', 'r') as datafile:
+        #     data_load = json.load(datafile)
+        # theta1 = np.array(data_load['theta1'])
+        # theta2 = np.array(data_load['theta2'])
+        # self.weights.append(theta1)
+        # self.weights.append(theta2)
 
-    def fit(self, X, y, learning_rate=0.4, epochs=3):
+    def fit(self, X, y, learning_rate=0.4, epochs=1):
         # Add column of ones to X
         # This is to add the bias unit to the input layer
         ones = np.atleast_2d(np.ones(X.shape[0]))
@@ -139,7 +140,7 @@ class NeuralNetwork:
                 delta = np.atleast_2d(deltas[i])
                 self.weights[i] += learning_rate * layer.T.dot(delta)
 
-            if k % 4 == 0: print ('epochs:', k)
+         #   if k % 4 == 0: #print ('epochs:', k)
 
     def predict(self, x): 
         a = np.concatenate((np.ones(1).T, np.array(x)))      
@@ -418,14 +419,14 @@ def mainGame(movementInfo):
     print("new pipe",newPipe1)
     # list of upper pipes
     upperPipes = [
-        {'x': SCREENWIDTH + 200, 'y': newPipe1[0]['y']},
-        {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
+        {'x': SCREENWIDTH , 'y': newPipe1[0]['y']},
+        {'x': SCREENWIDTH  + (SCREENWIDTH / 2), 'y': newPipe2[0]['y']},
     ]
 
     # list of lowerpipe
     lowerPipes = [
-        {'x': SCREENWIDTH + 200, 'y': newPipe1[1]['y']},
-        {'x': SCREENWIDTH + 200 + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
+        {'x': SCREENWIDTH, 'y': newPipe1[1]['y']},
+        {'x': SCREENWIDTH  + (SCREENWIDTH / 2), 'y': newPipe2[1]['y']},
     ]
 
     pipeVelX = -4
@@ -466,8 +467,7 @@ def mainGame(movementInfo):
         # else:
         #     a = [lowerPipes[0]['x']-playerx,lowerPipes[0]['y']-playery]
         #     X = np.array([[lowerPipes[0]['x']+4-playerx,lowerPipes[0]['y']-20-playery]])
-
-        if(lowerPipes[0]['x'] < 57):
+        if(lowerPipes[0]['x'] < 40):
             x_data = lowerPipes[1]['x']-playerx;
             y_data = lowerPipes[1]['y']-playery;                    
         else:
@@ -478,11 +478,9 @@ def mainGame(movementInfo):
                                #upperPipes, lowerPipes)
         # print(lowerPipes)                       
         # print(playerx,playery)
-        
-
         for e in X:
             output = net.predict(e)  
-        # print(output)   
+        #print(output)   
         if(output>0.5):
             playerVelY = playerFlapAcc
             playerFlapped = True
@@ -498,13 +496,13 @@ def mainGame(movementInfo):
             else:
                 y = np.array([1])    
             # print("Fitting")
-            # net.fit(X,y)
+            net.fit(X,y)
         else:
             if(output>0.5):    
                 y = np.array([1])
             else:
                 y = np.array([0]) 
-            # net.fit(X,y)  
+          #  net.fit(X,y)  
         # check for crash here
         # if(len(lowerPipes)==3):
         #     a = [lowerPipes[1]['x']-playerx,lowerPipes[1]['y']-playery]
@@ -539,7 +537,7 @@ def mainGame(movementInfo):
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 score += 1
                 max_score = max(max_score,score)
-                # print(max_score)
+                print(max_score)
                 #SOUNDS['point'].play()
 
         # playerIndex basex change
