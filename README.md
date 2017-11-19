@@ -1,1 +1,1 @@
-# FlapPyBirdie
+# FlapPy-Birdie-AI
